@@ -12,6 +12,7 @@
 
 struct ccu_gate {
 	u32			enable;
+	u32			key_value;
 
 	struct ccu_common	common;
 };
@@ -27,6 +28,22 @@ struct ccu_gate {
 						      _flags),		\
 		}							\
 	}
+
+#define SUNXI_CCU_GATE_WITH_KEY(_struct, _name, _parent, _reg,		\
+				_key_value, _gate, _flags)		\
+	struct ccu_gate _struct = {					\
+		.enable = _gate,					\
+		.common = {						\
+			.reg		= _reg,				\
+			.key_value	= _key_value,			\
+			.features	= CCU_FEATURE_KEY_FIELD,	\
+			.hw.init	= CLK_HW_INIT(_name,		\
+						      _parent,		\
+						      &ccu_gate_ops,	\
+						      _flags),		\
+		}							\
+	}
+
 
 #define SUNXI_CCU_GATE_HW(_struct, _name, _parent, _reg, _gate, _flags)	\
 	struct ccu_gate _struct = {					\
