@@ -35,6 +35,7 @@ struct ccu_common {
 	u16		reg;
 	u16		lock_reg;
 	u32		prediv;
+	u32		key_value;
 
 	unsigned long	min_rate;
 	unsigned long	max_rate;
