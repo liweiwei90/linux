@@ -109,6 +109,9 @@ static int ccu_div_set_rate(struct clk_hw *hw, unsigned long rate,
 	if (cd->common.features & CCU_FEATURE_UPDATE_BIT)
 		reg |= CCU_SUNXI_UPDATE_BIT;
 
+	if (cd->common.features & CCU_FEATURE_KEY_FIELD)
+		reg |= cd->common.key_value;
+
 	writel(reg | (val << cd->div.shift),
 	       cd->common.base + cd->common.reg);
 
