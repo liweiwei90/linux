@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
+/*
+ * Copyright (C) 2015-2025 Allwinner Technology Co., Ltd.
+ * Author: Yao Zi <me@ziyao.cc>
+ */
+
+#include "sun60i-a733.dtsi"
+
+/ {
+	compatible = "allwinner,a733-demo-aiot", "allwinner,a733";
+	model = "Allwinner A733 Demo AIOT";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
