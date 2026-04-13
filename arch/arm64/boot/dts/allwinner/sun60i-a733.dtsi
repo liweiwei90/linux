@@ -207,6 +207,14 @@
 			interrupt-controller;
 			#interrupt-cells = <3>;
 
+			mmc0_pins: mmc0-pins {
+				pins = "PF0", "PF1", "PF2", "PF3", "PF4", "PF5";
+				function = "sdc0";
+				allwinner,pinmux = <2>;
+				bias-pull-up;
+				drive-strength = <30>;
+			};
+
 			uart0_pins: uart0_pins {
 				pins = "PB9", "PB10";
 				function = "uart0";
@@ -250,6 +258,62 @@
 			interrupt-controller;
 			#interrupt-cells = <3>;
 			#address-cells = <0>;
+		};
+
+		mmc0: sdmmc@4020000 {
+			compatible = "allwinner,sun50i-a100-mmc";
+			reg = <0x0 0x4020000 0x0 0x1000>;
+			clocks = <&ccu CLK_BUS_SMHC0>, <&ccu CLK_SMHC0>;
+			clock-names = "ahb", "mmc";
+			interrupts = <GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>;
+			max-frequency = <200000000>;
+			resets = <&ccu RST_BUS_SMHC0>;
+			reset-names = "ahb";
+			pinctrl-names = "default";
+			pinctrl-0 = <&mmc0_pins>;
+			status = "disabled";
+
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			cap-sdio-irq;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		mmc1: sdmmc@4021000 {
+			compatible = "allwinner,sun50i-a100-mmc";
+			reg = <0x0 0x4021000 0x0 0x1000>;
+			clocks = <&ccu CLK_BUS_SMHC1>, <&ccu CLK_SMHC1>;
+			clock-names = "ahb", "mmc";
+			interrupts = <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>;
+			max-frequency = <200000000>;
+			resets = <&ccu RST_BUS_SMHC1>;
+			reset-names = "ahb";
+			status = "disabled";
+
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			cap-sdio-irq;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		mmc2: sdmmc@4022000 {
+			compatible = "allwinner,sun50i-a100-mmc";
+			reg = <0x0 0x4022000 0x0 0x1000>;
+			clocks = <&ccu CLK_BUS_SMHC2>, <&ccu CLK_SMHC2>;
+			clock-names = "ahb", "mmc";
+			interrupts = <GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>;
+			max-frequency = <200000000>;
+			resets = <&ccu RST_BUS_SMHC2>;
+			reset-names = "ahb";
+			status = "disabled";
+
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			cap-sdio-irq;
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		r_ccu: r_ccu@7010000 {
