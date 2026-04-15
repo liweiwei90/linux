@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
+/*
+ * Copyright (C) 2015-2025 Allwinner Technology Co., Ltd.
+ * Author: Yao Zi <me@ziyao.cc>
+ */
+
+#include "sun60i-a733.dtsi"
+
+/ {
+	compatible = "radxa,a7a", "allwinner,a733";
+	model = "Radxa Cubie A7A";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
