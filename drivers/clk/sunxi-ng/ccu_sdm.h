@@ -36,18 +36,38 @@ struct ccu_sdm_internal {
 	/* second enable bit in tuning register */
 	u32		tuning_enable;
 	u16		tuning_reg;
+	u32		pattern1_enable;
+	u16		pattern1_reg;
 };
 
-#define _SUNXI_CCU_SDM(_table, _enable,			\
-		       _reg, _reg_enable)		\
+#define _SUNXI_CCU_SDM_COMPLETE(_table, _enable, _reg, _reg_enable,	\
+				_reg_1, _reg_1_enable)	\
 	{						\
 		.table		= _table,		\
 		.table_size	= ARRAY_SIZE(_table),	\
 		.enable		= _enable,		\
 		.tuning_enable	= _reg_enable,		\
 		.tuning_reg	= _reg,			\
+		.pattern1_enable = _reg_1_enable,	\
+		.pattern1_reg	= _reg_1,		\
 	}
 
+#define _SUNXI_CCU_SDM(_table, _enable, _reg, _reg_enable) \
+	_SUNXI_CCU_SDM_COMPLETE(_table, _enable, _reg, _reg_enable, 0, 0)
+
+#define _SUNXI_CCU_SDM_INFO_PATTERN1(_reg, _reg_enable, _reg_1, _reg_1_enable) \
+	{								\
+		.tuning_enable		= _reg_enable,			\
+		.tuning_reg		= _reg,				\
+		.pattern1_enable	= _reg_1_enable,		\
+		.pattern1_reg		= _reg_1,			\
+	}
+
+#define _SUNXI_CCU_SDM_PATTERN1(_table, _reg, _reg_enable, _reg_1, _reg_1_enable)               \
+	_SUNXI_CCU_SDM_COMPLETE(_table, 0, _reg, _reg_enable, _reg_1, _reg_1_enable)
+
+void ccu_common_set_sdm_value(struct ccu_common *common, struct ccu_sdm_internal *sdm, u32 sdmval);
+u32 ccu_get_sdmval(unsigned long rate, struct ccu_common *common, u32 n);
 bool ccu_sdm_helper_is_enabled(struct ccu_common *common,
 			       struct ccu_sdm_internal *sdm);
 void ccu_sdm_helper_enable(struct ccu_common *common,

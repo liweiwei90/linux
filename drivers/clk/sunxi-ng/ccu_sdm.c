@@ -18,6 +18,11 @@ bool ccu_sdm_helper_is_enabled(struct ccu_common *common,
 	if (sdm->enable && !(readl(common->base + common->reg) & sdm->enable))
 		return false;
 
+	if (sdm->pattern1_reg) {
+		if (((readl(common->base + sdm->pattern1_reg) & sdm->pattern1_enable)) != sdm->pattern1_enable)
+			return false;
+	}
+
 	return !!(readl(common->base + sdm->tuning_reg) & sdm->tuning_enable);
 }
 EXPORT_SYMBOL_NS_GPL(ccu_sdm_helper_is_enabled, "SUNXI_CCU");
@@ -43,6 +48,10 @@ void ccu_sdm_helper_enable(struct ccu_common *common,
 	spin_lock_irqsave(common->lock, flags);
 	reg = readl(common->base + sdm->tuning_reg);
 	writel(reg | sdm->tuning_enable, common->base + sdm->tuning_reg);
+	if (sdm->pattern1_reg) {
+		reg = readl(common->base + sdm->pattern1_reg);
+		writel(reg | sdm->pattern1_enable, common->base + sdm->pattern1_reg);
+	}
 	spin_unlock_irqrestore(common->lock, flags);
 
 	spin_lock_irqsave(common->lock, flags);
@@ -69,6 +78,10 @@ void ccu_sdm_helper_disable(struct ccu_common *common,
 	spin_lock_irqsave(common->lock, flags);
 	reg = readl(common->base + sdm->tuning_reg);
 	writel(reg & ~sdm->tuning_enable, common->base + sdm->tuning_reg);
+	if (sdm->pattern1_reg) {
+		reg = readl(common->base + sdm->pattern1_reg);
+		writel(reg & ~sdm->pattern1_enable, common->base + sdm->pattern1_reg);
+	}
 	spin_unlock_irqrestore(common->lock, flags);
 }
 EXPORT_SYMBOL_NS_GPL(ccu_sdm_helper_disable, "SUNXI_CCU");

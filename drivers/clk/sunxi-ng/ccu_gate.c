@@ -20,6 +20,10 @@ void ccu_gate_helper_disable(struct ccu_common *common, u32 gate)
 	spin_lock_irqsave(common->lock, flags);
 
 	reg = readl(common->base + common->reg);
+	/* data reading result of the keyfield bits are always 0 */
+	if (common->features & CCU_FEATURE_KEY_FIELD)
+		reg |= common->key_value;
+
 	if (common->features & CCU_FEATURE_UPDATE_BIT)
 		reg |= CCU_SUNXI_UPDATE_BIT;
 	writel(reg & ~gate, common->base + common->reg);
@@ -48,6 +52,9 @@ int ccu_gate_helper_enable(struct ccu_common *common, u32 gate)
 	reg = readl(common->base + common->reg);
 	if (common->features & CCU_FEATURE_UPDATE_BIT)
 		reg |= CCU_SUNXI_UPDATE_BIT;
+
+	if (common->features & CCU_FEATURE_KEY_FIELD)
+		reg |= common->key_value;
 	writel(reg | gate, common->base + common->reg);
 
 	spin_unlock_irqrestore(common->lock, flags);
