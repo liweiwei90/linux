@@ -5,6 +5,7 @@
  */
 
 #include "sun60i-a733.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	compatible = "allwinner,a733-demo-aiot", "allwinner,a733";
@@ -17,6 +18,22 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
+
+	reg_3v3: regulator-fixed-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "fixed-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+};
+
+&mmc0 {
+	/* Missing v(q)mmc-supply which is SWOUT2/CLDO3 of AXP318 */
+	bus-width = <4>;
+	disable-wp;
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;
+	vmmc-supply = <&reg_3v3>;
+	status = "okay";
 };
 
 &uart0 {
