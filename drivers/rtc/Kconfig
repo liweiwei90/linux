@@ -1660,6 +1660,15 @@ config RTC_DRV_SUN6I
 	  If you say Y here you will get support for the RTC found in
 	  some Allwinner SoCs like the A31 or the A64.
 
+config RTC_DRV_SUN60I
+	bool "Allwinner A733 RTC"
+	default MACH_SUN60I
+	depends on COMMON_CLK
+	depends on ARCH_SUNXI || COMPILE_TEST
+	help
+	  If you say Y here you will get support for the RTC found in
+	  some Allwinner SoCs like the A733.
+
 config RTC_DRV_SUNXI
 	tristate "Allwinner sun4i/sun7i RTC"
 	depends on MACH_SUN4I || MACH_SUN7I || COMPILE_TEST
