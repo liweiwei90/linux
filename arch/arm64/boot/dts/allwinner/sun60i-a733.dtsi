@@ -194,6 +194,12 @@
 			#reset-cells = <1>;
 		};
 
+		wdt: watchdog@2050000 {
+			compatible = "allwinner,sun55i-a523-wdt";
+			reg = <0x0 0x2050000 0x0 0x20>;
+			interrupts = <GIC_SPI 106 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
 		uart0: uart@2500000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x2500000 0x0 0x400>;
