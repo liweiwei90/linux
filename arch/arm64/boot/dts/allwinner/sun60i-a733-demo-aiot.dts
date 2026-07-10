@@ -165,12 +165,18 @@
 	bus-width = <4>;
 	disable-wp;
 	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;
+	/* DC1SW2 gates 3.3V card power; I/O is also 3.3V (not CLDO5 1.8V). */
 	vmmc-supply = <&swout2>;
-	vqmmc-supply = <&cldo5>;
+	vqmmc-supply = <&swout2>;
 	status = "okay";
 };
 
 &pio {
+	/* PF = SD, PB = UART0, PG = Wi-Fi (DCDC1 3.3V) */
+	vcc-pf-supply = <&swout2>;
+	vcc-pb-supply = <&dcdc1>;
+	vcc-pg-supply = <&dcdc1>;
+
 	uart0_pins: uart0_pins {
 		pins = "PB9", "PB10";
 		function = "uart0";
@@ -263,7 +269,11 @@
 				regulator-boot-on;
 				regulator-always-on;
 			};
-
+			/*
+			 * DC1SW2: load switch on DCDC1. Driver reports a
+			 * fixed 3.3V so MMC can build an OCR mask; enable
+			 * only (no programmable vsel).
+			 */
 			swout2: swout2 {
 				regulator-name = "swout2";
 				regulator-min-microvolt = <3300000>;
@@ -276,7 +286,7 @@
 			dcdc1: dcdc1 {
 				regulator-name = "dcdc1";
 				regulator-min-microvolt = <1000000>;
-				regulator-max-microvolt = <3400000>;
+				regulator-max-microvolt = <3800000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
@@ -292,23 +302,23 @@
 			dcdc6: dcdc6 {
 				regulator-name = "dcdc6";
 				regulator-min-microvolt = <500000>;
-				regulator-max-microvolt = <1540000>;
+				regulator-max-microvolt = <2760000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
 			dcdc8: dcdc8 {
 				regulator-name = "dcdc8";
-				regulator-min-microvolt = <1200000>;
-				regulator-max-microvolt = <1800000>;
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
 			dldo6: dldo6 {
 				regulator-name = "dldo6";
-				regulator-min-microvolt = <2500000>;
-				regulator-max-microvolt = <2500000>;
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <3400000>;
 				regulator-boot-on;
 				regulator-always-on;
 			};
@@ -432,6 +442,11 @@
 
 &rtc {
     status = "okay";
+};
+
+&ufs {
+	status = "okay";
+	/* force-auto-pll-cal; */
 };
 
 /*

@@ -21,7 +21,8 @@
 #define CLK_RTC_DCXO_SERDES0	10
 #define CLK_RTC_SPI		11
 #define CLK_DCXO		12
+#define CLK_RTC_DCXO_UFS_GATING	13
 
-#define CLK_RTC_MAX_NO                      (CLK_DCXO + 1)
+#define CLK_RTC_MAX_NO                      (CLK_RTC_DCXO_UFS_GATING + 1)
 
 #endif /* _DT_BINDINGS_CLK_SUN60IW2_RTC_H_ */

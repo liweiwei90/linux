@@ -472,8 +472,8 @@
 		ccu: ccu@2002000 {
 			compatible = "allwinner,sun60iw2-ccu";
 			reg = <0x0 0x02002000 0x0 0x2000>;
-			clocks = <&dcxo24M>, <&rc_16m>;
-			clock-names = "hosc", "iosc";
+			clocks = <&dcxo24M>, <&rtc_ccu CLK_OSC32K>, <&rc_16m>;
+			clock-names = "hosc", "losc", "iosc";
 			#clock-cells = <1>;
 			#reset-cells = <1>;
 		};
@@ -1221,6 +1221,37 @@
 			dmas = <&dma 23>, <&dma 23>;
 			dma-names = "tx", "rx";
 			sunxi,spi-num-cs = <2>;
+			status = "disabled";
+		};
+
+		ufs: ufs@04520000 {
+			compatible = "allwinner,sunxi-ufs";
+			device_type = "ufs";
+			reg = <0x0 0x4520000 0x0 0x10000>;
+			interrupts = <GIC_SPI 165 IRQ_TYPE_EDGE_RISING>;
+			clocks = <&sys24M>,
+				<&ccu CLK_PLL_PERI0_200M>,
+				<&ccu CLK_PLL_PERI0_300M>,
+				<&ccu CLK_UFS_AXI>,
+				<&ccu CLK_UFS>,
+				<&ccu CLK_UFS_CFG>,
+				<&ccu CLK_STORE_AHB_GATE>,
+				<&ccu CLK_MBUS_STORE_GATE>,
+				<&ccu CLK_MSI_LITE1>,
+				<&rtc_ccu CLK_RTC_DCXO_UFS_GATING>,
+				<&rtc_ccu CLK_RTC_DCXO_WAKEUP>;
+			clock-names = "osc24m","pll_periph","pll_periph_2",
+					"axi_clk_gate","ahb_gate", "cfg_clk_gate",
+					"store_ahb","store_mbus","msi_lite",
+					"dcxo_ufs_gating","dcxo_wakeup";
+			resets = <&ccu RST_BUS_UFS_CORE>,
+				 <&ccu RST_BUS_UFS_PHY>,
+				 <&ccu RST_BUS_UFS_AXI>,
+				 <&ccu RST_BUS_UFS_AHB>;
+			reset-names = "controller_rst", "phy_rst", "axi_rst", "ahb_rst";
+			nvmem = <&sid>;
+			caps-wb-en;
+			/*caps-crypto;*/
 			status = "disabled";
 		};
 	};

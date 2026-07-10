@@ -75,6 +75,129 @@ static SUNXI_CCU_MUX(dcxo_clk, "dcxo",
 		14, 2,	/* mux */
 		CLK_SET_RATE_NO_REPARENT);
 
+static void sun60i_dcxo_wakeup_write_key(void __iomem *base)
+{
+	u32 val = readl(base + XO_CTRL_WP_REG) & ~0xffff;
+
+	writel(val | DCXO_WAKEUP_KEY_FIELD, base + XO_CTRL_WP_REG);
+}
+
+static int sun60i_dcxo_wakeup_enable(struct clk_hw *hw)
+{
+	struct ccu_gate *cg = hw_to_ccu_gate(hw);
+	void __iomem *base = cg->common.base;
+	unsigned long flags;
+	u32 reg;
+
+	spin_lock_irqsave(cg->common.lock, flags);
+	sun60i_dcxo_wakeup_write_key(base);
+	reg = readl(base + XO_CTRL_REG);
+	writel(reg & ~cg->enable, base + XO_CTRL_REG);
+	spin_unlock_irqrestore(cg->common.lock, flags);
+
+	return 0;
+}
+
+static void sun60i_dcxo_wakeup_disable(struct clk_hw *hw)
+{
+	struct ccu_gate *cg = hw_to_ccu_gate(hw);
+	void __iomem *base = cg->common.base;
+	unsigned long flags;
+	u32 reg;
+
+	spin_lock_irqsave(cg->common.lock, flags);
+	sun60i_dcxo_wakeup_write_key(base);
+	reg = readl(base + XO_CTRL_REG);
+	writel(reg | cg->enable, base + XO_CTRL_REG);
+	spin_unlock_irqrestore(cg->common.lock, flags);
+}
+
+static int sun60i_dcxo_wakeup_is_enabled(struct clk_hw *hw)
+{
+	struct ccu_gate *cg = hw_to_ccu_gate(hw);
+
+	return !(readl(cg->common.base + XO_CTRL_REG) & cg->enable);
+}
+
+static const struct clk_ops sun60i_dcxo_wakeup_clk_ops = {
+	.enable		= sun60i_dcxo_wakeup_enable,
+	.disable	= sun60i_dcxo_wakeup_disable,
+	.is_enabled	= sun60i_dcxo_wakeup_is_enabled,
+};
+
+static int sun60i_dcxo_ufs_gating_enable(struct clk_hw *hw)
+{
+	struct ccu_gate *cg = hw_to_ccu_gate(hw);
+	void __iomem *base = cg->common.base;
+	unsigned long flags;
+	u32 reg;
+
+	spin_lock_irqsave(cg->common.lock, flags);
+	sun60i_dcxo_wakeup_write_key(base);
+	reg = readl(base + XO_CTRL1_REG);
+	writel(reg | cg->enable, base + XO_CTRL1_REG);
+	spin_unlock_irqrestore(cg->common.lock, flags);
+
+	return 0;
+}
+
+static void sun60i_dcxo_ufs_gating_disable(struct clk_hw *hw)
+{
+	struct ccu_gate *cg = hw_to_ccu_gate(hw);
+	void __iomem *base = cg->common.base;
+	unsigned long flags;
+	u32 reg;
+
+	spin_lock_irqsave(cg->common.lock, flags);
+	sun60i_dcxo_wakeup_write_key(base);
+	reg = readl(base + XO_CTRL1_REG);
+	writel(reg & ~cg->enable, base + XO_CTRL1_REG);
+	spin_unlock_irqrestore(cg->common.lock, flags);
+}
+
+static int sun60i_dcxo_ufs_gating_is_enabled(struct clk_hw *hw)
+{
+	struct ccu_gate *cg = hw_to_ccu_gate(hw);
+
+	return !!(readl(cg->common.base + XO_CTRL1_REG) & cg->enable);
+}
+
+static const struct clk_ops sun60i_dcxo_ufs_gating_clk_ops = {
+	.enable		= sun60i_dcxo_ufs_gating_enable,
+	.disable	= sun60i_dcxo_ufs_gating_disable,
+	.is_enabled	= sun60i_dcxo_ufs_gating_is_enabled,
+};
+
+/*
+ * DCXO wakeup gate lives in XO_CTRL[31]: cleared = enabled, set = disabled.
+ * Register writes require unlocking via XO_CTRL_WP first.
+ */
+static struct ccu_gate dcxo_wakeup_clk = {
+	.enable = BIT(31),
+	.common = {
+		.reg = XO_CTRL_REG,
+		.hw.init = CLK_HW_INIT("dcxo-wakeup",
+				       "dcxo",
+				       &sun60i_dcxo_wakeup_clk_ops,
+				       0),
+	},
+};
+
+/*
+ * DCXO UFS host refclk gating lives in XO_CTRL1[0].
+ * Register writes require unlocking via XO_CTRL_WP first.
+ */
+static struct ccu_gate dcxo_ufs_gating_clk = {
+	.enable = BIT(0),
+	.common = {
+		.reg = XO_CTRL1_REG,
+		.hw.init = CLK_HW_INIT("dcxo-ufs-gating",
+				       "r-ahb",
+				       &sun60i_dcxo_ufs_gating_clk_ops,
+				       0),
+	},
+};
+
 static SUNXI_CCU_GATE(dcxo_serdes1_clk, "dcxo-serdes1", "r-ahb", 0x16c, BIT(5), 0);
 
 static SUNXI_CCU_GATE(dcxo_serdes0_clk, "dcxo-serdes0", "r-ahb", 0x16c, BIT(4), 0);
@@ -88,7 +211,8 @@ static struct ccu_common *sun60iw2_rtc_ccu_clks[] = {
 	&dcxo24M_div32k_clk.common,
 	&rtc32k_clk.common,
 	&rtc_32k_fanout_clk.common,
-//	&dcxo_wakeup_clk.common,
+	&dcxo_wakeup_clk.common,
+	&dcxo_ufs_gating_clk.common,
 	&dcxo_serdes1_clk.common,
 	&dcxo_serdes0_clk.common,
 	&rtc_spi_clk.common,
@@ -105,7 +229,8 @@ static struct clk_hw_onecell_data sun60iw2_rtc_ccu_hw_clks = {
 		[CLK_RTC32K]			= &rtc32k_clk.common.hw,
 		[CLK_RTC_1K]			= &rtc_1k_clk.hw,
 		[CLK_RTC_32K_FANOUT]		= &rtc_32k_fanout_clk.common.hw,
-//		[CLK_RTC_DCXO_WAKEUP]		= &dcxo_wakeup_clk.common.hw,
+		[CLK_RTC_DCXO_WAKEUP]		= &dcxo_wakeup_clk.common.hw,
+		[CLK_RTC_DCXO_UFS_GATING]	= &dcxo_ufs_gating_clk.common.hw,
 		[CLK_RTC_DCXO_SERDES1]		= &dcxo_serdes1_clk.common.hw,
 		[CLK_RTC_DCXO_SERDES0]		= &dcxo_serdes0_clk.common.hw,
 		[CLK_RTC_SPI]			= &rtc_spi_clk.common.hw,
