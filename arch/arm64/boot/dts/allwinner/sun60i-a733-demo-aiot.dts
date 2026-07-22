@@ -321,3 +321,7 @@
 		     &i2s0_dout0_pin &i2s0_din0_pin>;
 	status = "okay";
 };
+
+&gpu {
+	status = "okay";
+};
