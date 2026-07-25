@@ -11,6 +11,7 @@
 #include <dt-bindings/clock/sun60i-a733-r-ccu.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/reset/sun60i-a733-ccu.h>
+#include <dt-bindings/reset/sun60i-a733-r-ccu.h>
 
 / {
 	compatible = "allwinner,a733";
@@ -241,11 +242,13 @@
 		uart0: uart@2500000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x2500000 0x0 0x400>;
-			clocks = <&ccu CLK_UART1>;
-			resets = <&ccu RST_BUS_UART1>;
+			clocks = <&ccu CLK_UART0>;
+			resets = <&ccu RST_BUS_UART0>;
 			interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&uart0_pins>;
+			dmas = <&dma 14>,<&dma 14>;
+			dma-names = "rx", "tx";
 			reg-shift = <2>;
 			reg-io-width = <4>;
 			status = "disabled";
@@ -341,6 +344,179 @@
 			reg = <0x0 0x07090000 0x0 0x400>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+		};
+
+		soc_timer0: timer@3009000{
+			compatible = "allwinner,sun50i-timer";
+			device_type = "soc_timer";
+			reg = <0x0 0x03009000 0x0 0x400>;
+			interrupt-parent = <&gic>;
+			interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
+			clock-names = "parent", "bus", "timer0-mod", "timer1-mod";
+			clocks = <&sys24M>, <&ccu CLK_BUS_TIMER>, <&ccu CLK_TIMER0>, <&ccu CLK_TIMER1>;
+			resets = <&ccu RST_BUS_TIMER0>;
+		};
+
+		rtc: rtc@7090000 {
+			compatible = "allwinner,rtc-v201";
+			device_type = "rtc";
+			wakeup-source;
+			reg = <0x0 0x07090000 0x0 0x320>;
+			interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&r_ccu CLK_RTC>, <&rtc_ccu CLK_RTC_1K>, <&rtc_ccu CLK_RTC_SPI>;
+			clock-names = "r-ahb-rtc", "rtc-1k", "rtc-spi";
+			resets = <&r_ccu RST_BUS_RTC>;
+			gpr_cur_pos = <6>;
+			gpr_bootcount_pos = <7>;
+		};
+
+		dma: dma-controller@4601000 {
+			compatible = "allwinner,sun50i-h6-dma";
+			reg = <0x0 0x04601000 0x0 0x2000>;
+			interrupts = <GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_DMA0>, <&ccu CLK_MBUS_DMA0>;
+			clock-names = "bus", "mbus";
+			dma-channels = <16>;
+			dma-requests = <64>;
+			resets = <&ccu RST_BUS_DMA0>;
+			#dma-cells = <1>;
+		};
+
+		pwm0: pwm@2527000 {
+			#pwm-cells = <0x3>;
+			compatible = "allwinner,sunxi-pwm-v203";
+			reg = <0x0 0x02527000 0x0 0x400>;
+			clocks = <&ccu CLK_PWM0>;
+			interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
+			resets = <&ccu RST_BUS_PWM0>;
+			pwm-number = <10>;
+			pwm-base = <0x0>;
+			sunxi-pwms = <&pwm0_0>, <&pwm0_1>, <&pwm0_2>, <&pwm0_3>, <&pwm0_4>,
+			<&pwm0_5>, <&pwm0_6>, <&pwm0_7>, <&pwm0_8>, <&pwm0_9>;
+			status = "okay";
+		};
+
+		pwm0_0: pwm0@2527010 {
+			compatible = "allwinner,sunxi-pwm0";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527010 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_1: pwm0@2527011 {
+			compatible = "allwinner,sunxi-pwm1";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527011 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_2: pwm0@2527012 {
+			compatible = "allwinner,sunxi-pwm2";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527012 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_3: pwm0@2527013 {
+			compatible = "allwinner,sunxi-pwm3";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527013 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_4: pwm0@2527014 {
+			compatible = "allwinner,sunxi-pwm4";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527014 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_5: pwm0@2527015 {
+			compatible = "allwinner,sunxi-pwm5";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527015 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_6: pwm0@2527016 {
+			compatible = "allwinner,sunxi-pwm6";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527016 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_7: pwm0@2527017 {
+			compatible = "allwinner,sunxi-pwm7";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527017 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_8: pwm0@2527018 {
+			compatible = "allwinner,sunxi-pwm8";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527018 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		pwm0_9: pwm0@2527019 {
+			compatible = "allwinner,sunxi-pwm9";
+			pinctrl-names = "active", "sleep";
+			reg = <0x0 0x02527019 0x0 0x4>;
+			reg_base = <0x02527000>;
+			status = "disabled";
+		};
+
+		hwspinlock: hwspinlock@3005000 {
+			compatible = "allwinner,sun6i-a31-hwspinlock";
+			reg = <0x0 0x3005000 0x0 0x1000>;
+			#hwlock-cells = <1>;
+			clocks = <&ccu CLK_SPINLOCK>;
+			clock-names = "ahb";
+			resets = <&ccu RST_BUS_SPINLOCK>;
+			reset-names = "ahb";
+			status = "disabled";
+		};
+
+		msgbox: msgbox@3004000 {
+			compatible = "allwinner,sun60iw2-msgbox";
+			#mbox-cells = <1>;
+			reg = <0x0 0x03004000 0x0 0x1000>,
+			      <0x0 0x07094000 0x0 0x1000>;
+			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_MSGBOX0>;
+			clock-names = "msgbox";
+			resets = <&ccu RST_BUS_MSGBOX0>;
+			reset-names = "rst";
+			local_id = <0>;
+			status = "disabled";
+		};
+
+		spi0: spi@2540000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "allwinner,sun50i-r329-spi";
+			device_type = "spi0";
+			reg = <0x0 0x02540000 0x0 0x1000>;
+			interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_PLL_PERI0_300M>, <&ccu CLK_SPI0>, <&ccu CLK_BUS_SPI0>;
+			clock-names = "pll", "mod", "ahb";
+			clock-frequency = <100000000>;
+			resets = <&ccu RST_BUS_SPI0>;
+			dmas = <&dma 23>, <&dma 23>;
+			dma-names = "tx", "rx";
+			sunxi,spi-num-cs = <2>;
+			status = "disabled";
 		};
 	};
 };

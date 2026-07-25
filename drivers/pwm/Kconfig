@@ -819,4 +819,10 @@ config PWM_XILINX
 	  To compile this driver as a module, choose M here: the module
 	  will be called pwm-xilinx.
 
+config PWM_SUNXI
+	tristate "PWM Support for Allwinner A733"
+	depends on ARCH_SUNXI || COMPILE_TEST
+	help
+	  This enables suppport for Pulse-Width Modulation module on Allwinner A733 SoCs.
+
 endif
