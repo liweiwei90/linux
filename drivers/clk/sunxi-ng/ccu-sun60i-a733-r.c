@@ -100,7 +100,7 @@ static SUNXI_CCU_MUX_WITH_GATE(r_pwm_clk, "r-pwm",
 		BIT(31), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_pwm_bus_clk, "r-bus-pwm",
-		"dcxo",
+		"r-apbs0",
 		0x013C, BIT(0), CLK_IGNORE_UNUSED);
 
 static const struct clk_parent_data r_spi_parents[] = {
@@ -119,11 +119,11 @@ static SUNXI_CCU_DUALDIV_MUX_GATE(r_spi_clk, "r-spi",
 		BIT(31), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_spi_bus_clk, "r-spi-bus",
-		"dcxo",
+		"r-ahb",
 		0x015C, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_mbox_clk, "r-mbox",
-		"dcxo",
+		"r-ahb",
 		0x017C, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_uart1_clk, "r-uart1",
@@ -147,15 +147,15 @@ static SUNXI_CCU_GATE(r_twi0_clk, "r-twi0",
 		0x019C, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_ppu_clk, "r-ppu",
-		"dcxo",
+		"r-apbs0",
 		0x01AC, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_tzma_clk, "r-tzma",
-		"dcxo",
+		"r-apbs0",
 		0x01B0, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_cpus_bist_clk, "r-cpus-bist",
-		"dcxo",
+		"r-apbs0",
 		0x01BC, BIT(0), CLK_IGNORE_UNUSED);
 
 static const char * const r_irrx_parents[] = { "rtc32k", "dcxo", "pll-ref" };
@@ -168,11 +168,11 @@ static SUNXI_CCU_M_WITH_MUX_GATE(r_irrx_clk, "r-irrx",
 		CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_irrx_bus_clk, "r-irrx-bus",
-		"dcxo",
+		"r-apbs0",
 		0x01CC, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(rtc_clk, "rtc",
-		"dcxo",
+		"r-ahb",
 		0x020C, BIT(0), CLK_IGNORE_UNUSED);
 
 static const char * const riscv_24m_parents[] = { "dcxo", "osc32k", "iosc" };
@@ -182,15 +182,15 @@ static SUNXI_CCU_MUX_WITH_GATE(riscv_24m_clk, "riscv-24m",
 		BIT(31), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(riscv_cfg_clk, "riscv-cfg",
-		"dcxo",
+		"r-apbs0",
 		0x021C, BIT(1), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(riscv, "riscv",
-		"dcxo",
+		"r-ahb",
 		0x021C, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(r_cpucfg_clk, "r-cpucfg",
-		"dcxo",
+		"r-apbs0",
 		0x022C, BIT(0), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(vdd_usb2cpus_clk, "vdd-usb2cpus",
@@ -218,7 +218,7 @@ static SUNXI_CCU_GATE(cpu_icache_auto_clk, "cpu-icache-auto",
 		0x0338, BIT(8), CLK_IGNORE_UNUSED);
 
 static SUNXI_CCU_GATE(ahbs_auto_clk__clk, "ahbs-auto-clk",
-		"dcxo",
+		"r-ahb",
 		0x033C, BIT(24), CLK_IGNORE_UNUSED);
 /* ccu_des_end */
 
