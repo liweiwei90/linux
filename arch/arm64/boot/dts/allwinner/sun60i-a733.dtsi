@@ -208,6 +208,16 @@
 			interrupt-controller;
 			#interrupt-cells = <3>;
 
+			gmac_pins: gmac-pins {
+				pins = "PH0", "PH1", "PH2", "PH3", "PH4", "PH5",
+				       "PH6", "PH7", "PH8", "PH9", "PH10",
+				       "PH11", "PH12", "PH13", "PH14", "PH15";
+				function = "rgmii0";
+				allwinner,pinmux = <5>;
+				drive-strength = <20>;
+				bias-pull-up;
+			};
+
 			mmc0_pins: mmc0-pins {
 				pins = "PF0", "PF1", "PF2", "PF3", "PF4", "PF5";
 				function = "sdc0";
@@ -317,6 +327,56 @@
 			cap-sdio-irq;
 			#address-cells = <1>;
 			#size-cells = <0>;
+		};
+
+		gmac: gmac@4500000 {
+			compatible = "allwinner,sun60i-a733-gmac210",
+				     "snps,dwmac-5.20";
+			reg = <0x0 0x4500000 0x0 0x8000>,
+			      <0x0 0x4508000 0x0 0x8000>;
+			clocks = <&ccu CLK_GMAC0>, <&ccu CLK_GMAC0_MBUS>, <&ccu CLK_GMAC0_PHY>;
+			clock-names = "stmmaceth", "mbus", "phy";
+			resets = <&ccu RST_BUS_GMAC0_AXI>, <&ccu RST_BUS_GMAC0>;
+			reset-names = "stmmaceth", "ahb";
+			interrupts = <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq",
+					  "tx0_irq",
+					  "rx0_irq";
+			pinctrl-names = "default";
+			pinctrl-0 = <&gmac_pins>;
+			status = "disabled";
+
+			snps,fixed-burst;
+			snps,ent-tx-lpi-clockgating;
+			snps,axi-config = <&gmac_stmmac_axi_setup>;
+			snps,mtl-rx-config = <&gmac_mtl_rx_setup>;
+			snps,mtl-tx-config = <&gmac_mtl_tx_setup>;
+
+			mdio: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				status = "disabled";
+			};
+
+			gmac_stmmac_axi_setup: stmmac-axi-config {
+				snps,lpi_en;
+				snps,wr_osr_lmt = <0xf>;
+				snps,rd_osr_lmt = <0xf>;
+				snps,blen = <256 128 64 32 16 8 4>;
+			};
+
+			gmac_mtl_rx_setup: rx-queues-config {
+				snps,rx-queues-to-use = <1>;
+				queue0 {};
+			};
+
+			gmac_mtl_tx_setup: tx_queues-config {
+				snps,tx-queues-to-use = <1>;
+				queue0 {};
+			};
 		};
 
 		r_ccu: r_ccu@7010000 {
