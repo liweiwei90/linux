@@ -280,6 +280,33 @@
 		method = "smc";
 	};
 
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
+	/*
+	 * OP-TEE (BL32) at DRAM base: TZDRAM 32MiB + static SHM 4MiB.
+	 * Must match optee_os CFG_TZDRAM_* / CFG_SHMEM_* and TF-A BL32_BASE.
+	 */
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		optee_core: optee@40000000 {
+			reg = <0x0 0x40000000 0x0 0x02000000>;
+			no-map;
+		};
+
+		optee_shm: shm@42000000 {
+			reg = <0x0 0x42000000 0x0 0x00400000>;
+			no-map;
+		};
+	};
+
 	arm_pmu {
 		compatible = "arm,armv8-pmuv3";
 		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
