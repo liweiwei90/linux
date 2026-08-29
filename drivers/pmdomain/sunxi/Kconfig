@@ -22,7 +22,7 @@ config SUN50I_H6_PRCM_PPU
 	  optional for the H6.
 
 config SUN55I_PCK600
-	tristate "Allwinner A523 PCK-600 power domain driver"
+	tristate "Allwinner A523/A733 PCK-600 power domain driver"
 	depends on ARCH_SUNXI || COMPILE_TEST
 	depends on PM
 	default ARCH_SUNXI

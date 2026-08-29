@@ -151,7 +151,7 @@ static int sunxi_pck600_probe(struct platform_device *pdev)
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
-	rst = devm_reset_control_get_exclusive_released(dev, NULL);
+	rst = devm_reset_control_get_optional_exclusive_released(dev, NULL);
 	if (IS_ERR(rst))
 		return dev_err_probe(dev, PTR_ERR(rst), "failed to get reset control\n");
 
@@ -162,10 +162,21 @@ static int sunxi_pck600_probe(struct platform_device *pdev)
 	for (i = 0; i < desc->num_domains; i++) {
 		struct sunxi_pck600_pd *pd = &pck->pds[i];
 
+		pd->pck = pck;
 		pd->genpd.name = desc->pd_names[i];
 		pd->genpd.power_off = sunxi_pck600_power_off;
 		pd->genpd.power_on = sunxi_pck600_power_on;
 		pd->base = base + PPU_REG_SIZE * i;
+
+		/*
+		 * Tina leaves GPU_CORE out of the DT power-controller (see
+		 * sun60iw2p1.dtsi). Firmware/GPU driver poke that PPU
+		 * directly; genpd powering it off at unused-domain sync
+		 * times out (-ETIMEDOUT). Keep the index for bindings but
+		 * never idle it from software.
+		 */
+		if (!strcmp(desc->pd_names[i], "GPU_CORE"))
+			pd->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
 
 		sunxi_pck600_pd_setup(pd, desc);
 		ret = pm_genpd_init(&pd->genpd, NULL, false);
@@ -209,10 +220,33 @@ static const struct sunxi_pck600_desc sun55i_a523_pck600_desc = {
 	.off2on_delay = 0x8
 };
 
+/* A733 / sun60iw2 — domain order matches allwinner,sun60i-a733-pck-600.h */
+static const char * const sun60i_a733_pck600_pd_names[] = {
+	"VI", "DE_SYS", "VE_DEC", "VE_ENC", "NPU",
+	"GPU_TOP", "GPU_CORE", "PCIE", "USB2", "VO", "VO1"
+};
+
+static const struct sunxi_pck600_desc sun60i_a733_pck600_desc = {
+	.pd_names = sun60i_a733_pck600_pd_names,
+	.num_domains = ARRAY_SIZE(sun60i_a733_pck600_pd_names),
+	.logic_power_switch0_delay_offset = 0xc00,
+	.logic_power_switch1_delay_offset = 0xc04,
+	.off2on_delay_offset = 0xc10,
+	.device_ctrl0_delay = 0x1f1f1f,
+	.device_ctrl1_delay = 0x1f1f,
+	.logic_power_switch0_delay = 0x8080808,
+	.logic_power_switch1_delay = 0x808,
+	.off2on_delay = 0x8
+};
+
 static const struct of_device_id sunxi_pck600_of_match[] = {
 	{
 		.compatible	= "allwinner,sun55i-a523-pck-600",
 		.data		= &sun55i_a523_pck600_desc,
+	},
+	{
+		.compatible	= "allwinner,sun60i-a733-pck-600",
+		.data		= &sun60i_a733_pck600_desc,
 	},
 	{}
 };
